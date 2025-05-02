@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+</head>
+
+<body class="flex justify-center items-center h-screen bg-gray-300">
+
+  <!-- iPhone 13 Frame -->
+  <div
+    class="relative w-[320px] h-[595px] bg-black rounded-[50px] shadow-2xl border border-gray-600 flex justify-center items-center overflow-hidden">
+
+    <!-- Screen -->
+    <div class="w-[295px] h-[558px] bg-white rounded-[40px] flex flex-col relative overflow-hidden">
+
+      <!-- Sidebar -->
+      <div id="sidebar"
+        class="absolute z-10 top-0 left-[-100%] h-full w-64 bg-white shadow-lg transition-all duration-300 rounded-l-[40px]">
+        <div class="bg-sky-500 p-2.5 flex justify-center">
+          <div class="flex flex-col items-center text-white font-semibold rounded-xl transition duration-300">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo"
+              class="w-12 h-12 rounded-full object-cover bg-white shadow mb-2" />
+            <span class="text-center text-sm leading-tight px-2">Masbateño Language Learning & Translation Tool</span>
+          </div>
+        </div>
+        <ul class="p-4 space-y-2">
+          <li><a href="{{ url_for('dashboard') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Home</a></li>
+          <li><a href="{{ url_for('favorites') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Favorites</a></li>
+          <li><a href="{{ url_for('privacy_policy') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Privacy
+              Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Overlay -->
+      <div id="overlay" class="absolute z-5 top-0 left-0 w-full h-full bg-black bg-opacity-20 hidden"></div>
+
+      <!-- Navbar -->
+      <nav class="bg-sky-500 p-4 flex justify-between items-center rounded-t-[40px]">
+        <button id="menuBtn" class="text-white text-xl">&#9776;</button>
+        <h1 class="text-white font-bold pt-2 pl-2">Privacy Policy</h1>
+        <button class="text-white text-medium">&#128269;</button>
+      </nav>
+
+      <!-- Main Content (Scrollable) -->
+      <div class="flex-grow overflow-y-auto px-4 py-2 text-sm text-gray-700 space-y-4">
+        <h2 class="text-lg font-bold text-gray-800 mt-2">Privacy Policy</h2>
+
+        <p>Your privacy is important to us. This policy explains how we handle your information in the Masbateño
+          Language Learning & Translation Tool.</p>
+
+        <h3 class="font-semibold text-gray-800">1. Information We Collect</h3>
+        <p>We do not collect personal information. Text you enter for translation is used only for that purpose and is
+          not stored.</p>
+
+        <h3 class="font-semibold text-gray-800">2. Use of Translation Text</h3>
+        <p>All translations are processed temporarily and securely, either locally or via a secure connection to our
+          language model provider.</p>
+
+        <h3 class="font-semibold text-gray-800">3. Cookies and Storage</h3>
+        <p>We may use your browser's local storage to remember your preferences or save favorite phrases. This data
+          stays on your device.</p>
+
+        <h3 class="font-semibold text-gray-800">4. Third-Party Services</h3>
+        <p>If we use external translation models (e.g., Hugging Face), your text is sent securely and handled under
+          their privacy terms.</p>
+
+        <h3 class="font-semibold text-gray-800">5. Your Rights</h3>
+        <p>You can clear your local storage or stop using the app at any time. No user accounts or personal identifiers
+          are required.</p>
+
+        <h3 class="font-semibold text-gray-800">6. Updates</h3>
+        <p>This privacy policy may be updated. If major changes occur, we will notify users within the app interface.
+        </p>
+
+        <h3 class="font-semibold text-gray-800">Contact</h3>
+        <p>If you have questions about this policy, email us at <a href="mailto:example@example.com"
+            class="text-sky-600 underline">example@example.com</a>.</p>
+
+        <p class="text-xs text-gray-400 pt-2">Last updated: April 2025</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Toggle Script -->
+  <script>
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    document.getElementById("menuBtn").addEventListener("click", () => {
+      const isOpen = window.getComputedStyle(sidebar).left === "0px";
+      sidebar.style.left = isOpen ? "-100%" : "0px";
+      overlay.classList.toggle("hidden", isOpen ? true : false);
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.style.left = "-100%";
+      overlay.classList.add("hidden");
+    });
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>General Conversations</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="flex justify-center items-center h-screen bg-gray-300">
+
+  <!-- iPhone 13 Frame -->
+  <div
+    class="relative w-[320px] h-[595px] bg-black rounded-[50px] shadow-2xl border border-gray-600 flex justify-center items-center overflow-hidden">
+
+    <!-- Screen -->
+    <div class="w-[295px] h-[558px] bg-white rounded-[40px] flex flex-col relative overflow-hidden">
+
+      <!-- Sidebar -->
+      <div id="sidebar"
+        class="absolute z-10 top-0 left-[-100%] h-full w-64 bg-white shadow-lg transition-all duration-300 rounded-l-[40px]">
+
+        <!-- Logo Header -->
+        <div class="bg-sky-500 p-2.5 flex justify-center">
+          <div class="flex flex-col items-center text-white font-semibold rounded-xl transition duration-300">
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Conversations"
+              class="w-12 h-12 rounded-full object-cover bg-white shadow mb-2" />
+            <span class="text-center text-sm leading-tight px-2">Masbateño Language Learning & Translation Tool</span>
+          </div>
+        </div>
+
+        <!-- Navigation -->
+        <ul class="p-4 space-y-2">
+          <li><a href="{{ url_for('dashboard') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Home</a></li>
+          <li><a href="{{ url_for('favorites') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Favorites</a></li>
+          <li><a href="{{ url_for('privacy_policy') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Privacy
+              Policy</a></li>
+        </ul>
+      </div>
+
+      <!-- Overlay -->
+      <div id="overlay" class="absolute z-5 top-0 left-0 w-full h-full bg-black bg-opacity-20 hidden"></div>
+
+      <!-- Navbar -->
+      <nav class="bg-sky-500 p-4 flex justify-between items-center rounded-t-[40px]">
+        <button id="menuBtn" class="text-white text-xl">&#9776;</button>
+        <h1 class="text-white font-bold pt-2 pl-2">General Conversations</h1>
+        <button class="text-white text-medium">&#128269;</button>
+      </nav>
+
+      <!-- Content -->
+      <div class="flex flex-grow overflow-hidden">
+
+        <div id="phraseList" class="p-4 space-y-3 overflow-y-auto w-full max-h-full">
+          <!-- Cards injected by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script>
+    const phrases = [
+      { en: "Good morning!", ms: "Maayo na aga" },
+      { en: "Good afternoon!", ms: "Maayo na hapon" },
+      { en: "Good evening!", ms: "Maayo na gab-i" },
+      { en: "What's your name?", ms: "Ano an imo ngaran?" },
+      { en: "Where are you from?", ms: "Taga diin ka?" },
+      { en: "Nice to meet you", ms: "Nalipay ako nga nakilala ta ikaw!" },
+      { en: "See you tomorrow!", ms: "Kitaay ta buwas!" }
+    ];
+
+
+
+    const phraseList = document.getElementById("phraseList");
+    const savedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+    phrases.forEach((phrase) => {
+      const card = document.createElement("div");
+      card.className = "bg-gray-100 p-4 rounded-lg shadow relative transition hover:bg-sky-100";
+
+      const enText = document.createElement("p");
+      enText.className = "text-lg font-bold text-gray-800";
+      enText.textContent = phrase.en;
+
+      const msText = document.createElement("p");
+      msText.className = "text-gray-600 mt-2 hidden";
+      msText.textContent = phrase.ms;
+
+      const isFavorite = savedFavorites.some(f => f.en === phrase.en && f.ms === phrase.ms);
+
+      const starBtn = document.createElement("button");
+      starBtn.innerHTML = isFavorite ? "&#9733;" : "&#9734;";
+      starBtn.className = `absolute top-3 right-4 text-xl ${isFavorite ? "text-yellow-400" : "text-gray-400"} hover:text-yellow-400 transition`;
+
+      starBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const index = savedFavorites.findIndex(f => f.en === phrase.en && f.ms === phrase.ms);
+
+        if (index === -1) {
+          savedFavorites.push(phrase);
+          starBtn.innerHTML = "&#9733;";
+          starBtn.classList.remove("text-gray-400");
+          starBtn.classList.add("text-yellow-400");
+        } else {
+          savedFavorites.splice(index, 1);
+          starBtn.innerHTML = "&#9734;";
+          starBtn.classList.remove("text-yellow-400");
+          starBtn.classList.add("text-gray-400");
+        }
+
+        localStorage.setItem("favorites", JSON.stringify(savedFavorites));
+      });
+
+      card.addEventListener("click", () => {
+        msText.classList.toggle("hidden");
+      });
+
+      card.appendChild(enText);
+      card.appendChild(msText);
+      card.appendChild(starBtn);
+      phraseList.appendChild(card);
+    });
+
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+
+    document.getElementById("menuBtn").addEventListener("click", () => {
+      const isOpen = window.getComputedStyle(sidebar).left === "0px";
+      sidebar.style.left = isOpen ? "-100%" : "0px";
+      overlay.classList.toggle("hidden", isOpen ? true : false);
+    });
+
+    overlay.addEventListener("click", () => {
+      sidebar.style.left = "-100%";
+      overlay.classList.add("hidden");
+    });
+  </script>
+
+</body>
+
+</html>

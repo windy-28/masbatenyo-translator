@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translator</title>
+    <!-- Tailwind CDN (keep this if you're using Tailwind) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Your local custom CSS and JS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="flex justify-center items-center h-screen bg-gradient-to-b from-yellow-50 to-white">
+
+    <!-- iPhone 13 Frame -->
+    <div
+        class="relative w-[320px] h-[595px] bg-black rounded-[50px] shadow-2xl border border-gray-600 flex justify-center items-center overflow-hidden">
+
+        <!-- Screen (Inside the Phone Frame) -->
+        <div class="w-[295px] h-[558px] bg-white rounded-[40px] flex flex-col relative overflow-hidden">
+
+            <!-- Sidebar -->
+            <div id="sidebar"
+                class="absolute z-10 top-0 left-[-100%] h-full w-64 bg-white shadow-lg transition-all duration-300 rounded-l-[40px]">
+                <!-- Logo Header -->
+                <div class="bg-sky-500 p-2.5 flex justify-center">
+                    <div class="flex flex-col items-center text-white font-semibold rounded-xl transition duration-300">
+                        <img src="{{ url_for('static', filename='logo.png') }}" alt="Conversations"
+                            class="w-12 h-12 rounded-full object-cover bg-white shadow mb-2" />
+                        <span class="text-center text-sm leading-tight px-2">Masbateño Language Learning & Translation
+                            Tool</span>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <ul class="p-4 space-y-2">
+                    <li><a href="{{ url_for('dashboard') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Home</a>
+                    </li>
+                    <li><a href="{{ url_for('favorites') }}"
+                            class="block p-2 hover:bg-gray-100 rounded-lg">Favorites</a></li>
+                    <li><a href="{{ url_for('privacy_policy') }}" class="block p-2 hover:bg-gray-100 rounded-lg">Privacy
+                            Policy</a></li>
+                </ul>
+            </div>
+
+            <!-- Overlay -->
+            <div id="overlay" class="absolute z-5 top-0 left-0 w-full h-full bg-black bg-opacity-20 hidden"></div>
+
+            <!-- Navbar -->
+            <nav class="bg-sky-500 p-4 flex justify-between items-center rounded-t-[40px]">
+                <button id="menuBtn" class="text-white text-xl">&#9776;</button>
+                <h1 class="text-white font-bold pt-2 pl-2">Translator</h1>
+                <button class="text-white text-medium">&#128269;</button>
+            </nav>
+
+            <!-- Language Selection -->
+            <div class="flex justify-center items-center mt-2 px-4">
+                <div class="inline-flex shadow rounded-full overflow-hidden border border-gray-300">
+                    <button id="fromLang" class="bg-white text-black px-4 py-2 font-bold focus:outline-none"> English
+                    </button>
+                    <button id="swapLanguages" class="bg-white-100 text-black px-4 py-2"> &#x21c4; </button>
+                    <button id="toLang" class="bg-white text-black px-4 py-2 font-bold focus:outline-none"> Masbate
+                    </button>
+                </div>
+            </div>
+
+
+
+            <!-- Input Section -->
+            <div class="bg-gray-100 m-4 p-4 h-30 shadow-md rounded-lg">
+                <textarea id="inputText"
+                    class="w-full h-32 p-3 border border-gray-300 rounded-md bg-gray-50 text-xl focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    placeholder="Enter Text"></textarea>
+
+                <!-- Controls at the bottom aligned horizontally -->
+                <div class="flex justify-between items-center">
+                    <!-- Left side: Mic and Speaker -->
+                    <div class="flex space-x-3">
+                        <button id="speechToText" class="text-gray-500 text-xl">🎙️</button>
+                        <button id="speakInput" class="text-gray-500 text-xl">🔊</button>
+                    </div>
+                    <!-- Right side: Translate Button -->
+                    <button id="translateBtn"
+                        class="bg-orange-500 text-white px-4 py-2 rounded-md text-sm shadow-sm hover:bg-orange-600 transition duration-200">Translate</button>
+                </div>
+            </div>
+
+
+
+            <!-- Output Section -->
+            <!-- Output Section -->
+            <div id="outputSection" class="bg-gray-100 mt-4 mb-6 mx-4 p-5 rounded-lg shadow-md hidden">
+                <!-- Dynamically updated output language -->
+                <p id="outputLanguage" class="text-gray-600 text-sm mb-1 font-bold">Masbate</p>
+                <!-- Output language will change -->
+                <p id="outputText" class="text-lg font-bold mb-4"></p>
+
+                <!-- Controls below the output text -->
+                <div class="flex justify-between items-center">
+                    <button id="speakOutput" class="text-gray-500 text-xl">🔊</button>
+                    <button id="favoriteBtn" class="text-gray-500 text-xl">&#9734;</button>
+                    <!-- Empty star by default -->
+                </div>
+            </div>
+
+
+
+
+
+            <script>
+                let translateDirection = "en-to-masbatenyo";
+
+                document.getElementById("translateBtn").addEventListener("click", async function () {
+                    const inputText = document.getElementById("inputText").value.trim();
+                    const outputText = document.getElementById("outputText");
+                    const outputSection = document.getElementById("outputSection");
+                    const outputLanguage = document.getElementById("outputLanguage");
+                    const toLangText = toLangBtn.textContent;
+
+                    if (inputText !== "") {
+                        try {
+                            const response = await fetch("http://127.0.0.1:5000/translate", {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                body: JSON.stringify({
+                                    text: inputText,
+                                    direction: translateDirection
+                                })
+                            });
+
+                            const data = await response.json();
+                            if (data.translation) {
+                                outputText.textContent = data.translation;
+                                outputLanguage.textContent = toLangText;
+                                outputSection.classList.remove("hidden");
+
+                                // Store translation in current variables for favorite button
+                                window.lastTranslation = {
+                                    input: inputText,
+                                    output: data.translation,
+                                    direction: translateDirection
+                                };
+
+                                // Reset star to unfavorited
+                                document.getElementById("favoriteBtn").innerHTML = "&#9734;";
+                            } else {
+                                outputText.textContent = "[Translation failed]";
+                            }
+                        } catch (err) {
+                            console.error("Translation error:", err);
+                            outputText.textContent = "[Error contacting server]";
+                        }
+                    } else {
+                        outputText.textContent = "";
+                        outputSection.classList.add("hidden");
+                    }
+                });
+
+
+                document.getElementById("favoriteBtn").addEventListener("click", function () {
+                    if (!window.lastTranslation) return;
+
+                    const { input, output, direction } = window.lastTranslation;
+                    let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+                    const exists = favorites.some(item =>
+                        item.input === input && item.output === output && item.direction === direction
+                    );
+
+                    if (!exists) {
+                        favorites.push({ input, output, direction });
+                        localStorage.setItem("favorites", JSON.stringify(favorites));
+                        this.innerHTML = "&#9733;"; // filled star
+                        this.classList.add("text-yellow-400");
+                    } else {
+                        favorites = favorites.filter(item =>
+                            !(item.input === input && item.output === output && item.direction === direction)
+                        );
+                        localStorage.setItem("favorites", JSON.stringify(favorites));
+                        this.innerHTML = "&#9734;"; // empty star
+                        this.classList.remove("text-yellow-400");
+                    }
+                });
+
+
+                document.getElementById("speakOutput").addEventListener("click", function () {
+                    const text = document.getElementById("outputText").textContent;
+                    if (text.trim() !== "") {
+                        let utterance = new SpeechSynthesisUtterance(text);
+                        speechSynthesis.speak(utterance);
+                    }
+                });
+
+                document.getElementById("speechToText").addEventListener("click", function () {
+                    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                    recognition.lang = "en-US";
+                    recognition.start();
+                    recognition.onresult = function (event) {
+                        document.getElementById("inputText").value = event.results[0][0].transcript;
+                    };
+                });
+
+                const fromLangBtn = document.getElementById("fromLang");
+                const toLangBtn = document.getElementById("toLang");
+                const swapBtn = document.getElementById("swapLanguages");
+                const outputLanguage = document.getElementById("outputLanguage"); // Element for output language name
+
+                swapBtn.addEventListener("click", () => {
+                    // Swap the languages on the buttons
+                    const tempText = fromLangBtn.textContent;
+                    fromLangBtn.textContent = toLangBtn.textContent;
+                    toLangBtn.textContent = tempText;
+
+                    // Update the output language to match the target language (toLang)
+                    outputLanguage.textContent = toLangBtn.textContent;
+
+                    // Update translation direction
+                    translateDirection = translateDirection === "en-to-masbatenyo"
+                        ? "masbatenyo-to-en"
+                        : "en-to-masbatenyo";
+
+                    // Swap background colors for visual effect
+                    fromLangBtn.classList.toggle("bg-white");
+                    fromLangBtn.classList.toggle("");
+
+                    toLangBtn.classList.toggle("bg-white");
+                    toLangBtn.classList.toggle("");
+                });
+
+                // This updates the output language when you select the language
+                document.getElementById("translateBtn").addEventListener("click", function () {
+                    const inputText = document.getElementById("inputText").value;
+                    const outputText = document.getElementById("outputText");
+                    const outputSection = document.getElementById("outputSection");
+
+                    if (inputText.trim() !== "") {
+                        // Simulated translation (this would be replaced by actual translation logic)
+
+                        outputSection.classList.remove("hidden");
+
+                        // Update the output language based on the current "toLang"
+                        outputLanguage.textContent = toLangBtn.textContent;
+                    } else {
+                        outputText.textContent = "";
+                        outputSection.classList.add("hidden");
+                    }
+                });
+
+
+                const sidebar = document.getElementById("sidebar");
+                const overlay = document.getElementById("overlay");
+
+                document.getElementById("menuBtn").addEventListener("click", () => {
+                    const isOpen = window.getComputedStyle(sidebar).left === "0px";
+                    sidebar.style.left = isOpen ? "-100%" : "0px";
+                    overlay.classList.toggle("hidden", isOpen ? true : false);
+                });
+
+                overlay.addEventListener("click", () => {
+                    sidebar.style.left = "-100%";
+                    overlay.classList.add("hidden");
+                });
+
+
+            </script>
+</body>
+
+</html>
