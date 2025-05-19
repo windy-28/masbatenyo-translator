@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, jsonify, send_from_directory
+from flask import Flask, render_template, request, jsonify
 import os
 import string
 import re
+import gdown
+import zipfile
 
 from transformers import MarianMTModel, MarianTokenizer
 from flask_cors import CORS
@@ -9,10 +11,29 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)  # Enable Cross-Origin Requests
 
-# Load your fine-tuned model
-model_path = "./masbatenyo_bidirectional2_model"
-tokenizer = MarianTokenizer.from_pretrained(model_path)
-model = MarianMTModel.from_pretrained(model_path)
+# Google Drive info for zipped model
+ZIP_PATH = "masbatenyo_bidirectional2_model.zip"
+EXTRACT_DIR = "masbatenyo_bidirectional2_model"
+FILE_ID = "18vrn0FiH5WMn4K_hUAFmKxBjcA-A0RwT"
+URL = f"https://drive.google.com/uc?id={FILE_ID}"
+
+def download_and_extract_model():
+    if not os.path.exists(EXTRACT_DIR):
+        print("Downloading zipped model from Google Drive...")
+        gdown.download(URL, ZIP_PATH, quiet=False)
+        print("Extracting model...")
+        with zipfile.ZipFile(ZIP_PATH, 'r') as zip_ref:
+            zip_ref.extractall(EXTRACT_DIR)
+        print("Model extracted.")
+    else:
+        print("Model already downloaded and extracted.")
+
+# Download and extract model before loading
+download_and_extract_model()
+
+# Load tokenizer and model from extracted folder
+tokenizer = MarianTokenizer.from_pretrained(EXTRACT_DIR)
+model = MarianMTModel.from_pretrained(EXTRACT_DIR)
 
 @app.route("/")
 def home():
