@@ -4,6 +4,7 @@ import string
 import re
 import gdown
 import zipfile
+import requests
 
 from transformers import MarianMTModel, MarianTokenizer
 from flask_cors import CORS
@@ -13,7 +14,7 @@ CORS(app)  # Enable Cross-Origin Requests
 
 # Google Drive info for zipped model
 ZIP_PATH = "masbatenyo_bidirectional2_model.zip"
-EXTRACT_DIR = "masbatenyo_bidirectional2_model/masbatenyo_bidirectional2_model"
+EXTRACT_DIR = "masbatenyo_bidirectional2_model"
 FILE_ID = "18vrn0FiH5WMn4K_hUAFmKxBjcA-A0RwT"
 URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
@@ -27,6 +28,14 @@ def download_and_extract_model():
         print("Model extracted.")
     else:
         print("Model already downloaded and extracted.")
+
+# After extracting the zip
+print("Listing extracted model directory:")
+for root, dirs, files in os.walk("masbatenyo_bidirectional2_model"):
+    print("DIR:", root)
+    for f in files:
+        print("   FILE:", f)
+
 
 # Download and extract model before loading
 download_and_extract_model()
