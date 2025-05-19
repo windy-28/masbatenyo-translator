@@ -1,5 +1,7 @@
 from flask import Flask, render_template, request, jsonify, send_from_directory
 import os
+import string
+import re
 
 from transformers import MarianMTModel, MarianTokenizer
 from flask_cors import CORS
@@ -44,6 +46,9 @@ def translate():
 
     if not input_text:
         return jsonify({"error": "No input text provided"}), 400
+    
+    # Detect punctuation in input
+    has_punctuation = bool(re.search(r'[.?!"]', input_text))
 
     # Translate accordingly
     if direction == "en-to-masbatenyo":
@@ -56,6 +61,14 @@ def translate():
         inputs = tokenizer(input_text, return_tensors="pt", padding=True, truncation=True)
         translated_tokens = model.generate(**inputs)
         output_text = tokenizer.decode(translated_tokens[0], skip_special_tokens=True)
+
+    # Remove punctuation from output only if input has no punctuation
+    if not has_punctuation:
+        output_text = ''.join(ch for ch in output_text if ch not in ['"', '?', '.', '!'])
+
+    # Remove unwanted punctuation characters: ", ?, ., !
+    unwanted_chars = ['"']
+    output_text = ''.join(ch for ch in output_text if ch not in unwanted_chars)
 
     return jsonify({"translation": output_text})
 
