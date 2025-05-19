@@ -15,7 +15,7 @@ CORS(app)  # Enable Cross-Origin Requests
 # Google Drive info for zipped model
 ZIP_PATH = "masbatenyo_bidirectional2_model.zip"
 EXTRACT_DIR = "masbatenyo_bidirectional2_model"
-FILE_ID = "1PuKFllPoqzoaLLxWC3zpSVRS7_f4Rb44"
+FILE_ID = "12Y2I6IbmPccnXlBDTxfbVzF4G_2vskWX"
 URL = f"https://drive.google.com/uc?id={FILE_ID}"
 
 def download_and_extract_model():
